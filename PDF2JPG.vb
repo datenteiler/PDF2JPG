@@ -29,6 +29,7 @@ Public Class PDF2JPG
         Dim GsDpi As Integer
         Dim papersize As String
 
+        ' Get the command line arguments
         If cliArgs.Count() = 8 Then
             ' Index  Discription:
             ' 0      Full path of exe
@@ -58,23 +59,25 @@ Public Class PDF2JPG
             Wrong(cliArgs(0))
         End If
 
-        Dim GsSettings As New GhostscriptSettings
+        ' Get page number of the PDF
         Dim NumPages As Integer
         NumPages = GetNumPages(GsInputPath)
 
+        ' Set settings for GhostScript for the JPG
+        Dim GsSettings As New GhostscriptSettings
         With GsSettings
             .Device = Settings.GhostscriptDevices.jpeg
-            .Page = New Settings.GhostscriptPages With {.Start = 1, .[End] = NumPages, .AllPages = True} ' .Start = 1, .[End] = 1,
-            ' Render dpi
-            .Resolution = New Size With {.Height = GsDpi, .Width = GsDpi}
+            .Page = New Settings.GhostscriptPages With {.Start = 1, .[End] = NumPages, .AllPages = True} ' All pages out
+            .Resolution = New Size With {.Height = GsDpi, .Width = GsDpi} ' Render the DPI
+            ' Is the paper size letter or A4
             If papersize = "-a4" Then
                 .Size = New Settings.GhostscriptPageSize With {.Native = Settings.GhostscriptPageSizes.a4}
-            End If
-            If papersize = "-letter" Then
+            ElseIf papersize = "-letter" Then
                 .Size = New Settings.GhostscriptPageSize With {.Native = Settings.GhostscriptPageSizes.letter}
             End If
         End With
 
+        ' Generate the JPG(s)
         GhostscriptWrapper.GenerateOutput(GsInputPath, GsOutputPath, GsSettings)
     End Sub
 End Class
